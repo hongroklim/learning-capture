@@ -1,0 +1,6 @@
+<h2>classrooms</h2>
+<ul>
+    {% for classroom in object_list %}
+        <li>{{ classroom.year }}년도 {{ classroom.semester }}학기 : {{ classroom.title }} ({{ classroom.professor }} 교수님)</li>
+    {% endfor %}
+</ul>
