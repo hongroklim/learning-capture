@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 #TODO : INTEGER RANGE
 
@@ -39,7 +40,8 @@ class Chapter(models.Model):
     weeklyclass = models.ForeignKey(WeeklyClass, on_delete = models.CASCADE)
     num = models.IntegerField()
     title = models.CharField(max_length=50, blank=True)
-    video = models.URLField(max_length=200, blank=True)
+    videolink = models.URLField(max_length=200, blank=True)
+    video = models.FileField(upload_to="learn/videos", blank=True)
     
     def __str__(self):
         return '%d : %s (%d) <%s>' % (self.weeklyclass.num, self.weeklyclass.title, self.num, self.title)
@@ -48,9 +50,13 @@ class Chapter(models.Model):
 class Lecture(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete = models.CASCADE)
     num = models.IntegerField(default=0)
-    image = models.ImageField(blank=True)
+    image = models.ImageField(upload_to="learn/images/lecture", blank=True)
     title = models.CharField(max_length=50, blank=True)
     note = models.TextField(max_length=500, blank=True)
     
     def __str__(self):
-        return '%d-%d : %s' % (self.chapter.weeklyclass.num, self.chapter.num, self.title)
+        return '%d-%d-%d-%d : %s' % (self.chapter.weeklyclass.classroom.pk, self.chapter.weeklyclass.num, self.chapter.num, self.num, self.title)
+    
+    def get_absolute_url(self):
+        param = [self.chapter.weeklyclass.classroom.pk, self.chapter.weeklyclass.pk, self.chapter.pk]
+        return reverse('learn:chapter', args=param)

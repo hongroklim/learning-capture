@@ -39,6 +39,12 @@
     .lecture-card{
         cursor: pointer;
     }
+    
+    #lecture_card_footer > .col > .card:hover{
+        cursor: pointer;
+        background-color: #343a40;
+        color: #fff;
+    }
 </style>
 </head>
 <body>
@@ -70,12 +76,13 @@
                 </div>
             </div>
         -->
+        <!-- video -->
         <div id="video_col" class="col-6">
             <div class="row mb-3">
                 <div class="col">
-                        <video class="shadow" width="100%" controls autoplay="false">
-                            <source src="{{ chapter.video }}" type="video/mp4">
-                        </video>
+                    <video class="shadow" width="100%" controls autoplay="false" crossorigin="anonymous">
+                        <source src="https://cors-anywhere.herokuapp.com/{{ chapter.videolink }}" type="video/mp4">
+                    </video>
                 </div>
             </div>
             <div class="row">
@@ -85,6 +92,8 @@
                 </div>
             </div>
         </div>
+        
+        <!-- lecture -->
         <div id="lecture_col" class="col-4">
             <div class="row mb-2">
                 <div class="col">
@@ -112,76 +121,58 @@
             </div>
             <div class="row">
                 <div class="col text-right">
-                    <button id="lec_reset" type="button" class="btn btn-sm btn-secondary">모두 지우기</button>
-                    <button id="lec_add" type="button" class="btn btn-sm btn-success">추가</button>
+                    <button id="lec_reset" type="button" class="btn btn-sm btn-secondary">지우기</button>
+                    <button id="lec_create" type="button" class="btn btn-sm btn-success">추가</button>
                     <!-- 수정할 때 -->
                     <!--
-                    <button id="lec_del" type="button" class="btn btn-sm btn-danger">삭제</button>
-                    <button id="lec_save" type="button" class="btn btn-sm btn-success">저장</button>
+                    <button id="lec_delete" type="button" class="btn btn-sm btn-danger">삭제</button>
+                    <button id="lec_update" type="button" class="btn btn-sm btn-success">저장</button>
                     -->
                 </div>
             </div>
         </div>
         
+        <!-- lectures -->
         <div id="lectures_col" class="col-2">
-            <div class="row mb-2">
+            <!-- lectures header -->
+            <!-- TODO : put on header -->
+            <div id="lecture_card_header" class="row mb-2">
                 <div class="col">
-                    <div class="card lecture-card text-white bg-secondary lecture-active">
-                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
-                        <div class="card-body"><b>5</b> 전기에너지</div>
+                    <div class="card">
+                        <div class="card-body text-right">
+                            <button id="lecs_refresh" type="button" class="btn btn-sm btn-light">목록 새로고침</button>
+                            <button type="button" class="btn btn-sm btn-outline-dark lec_append">추가</button>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="row mb-2">
+            {% for i_lecture in lectures %}
+            <div class="row mb-2 lecture-card" data-pk="{{ i_lecture.pk }}">
                 <div class="col">
-                    <div class="card lecture-card">
-                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
-                        <div class="card-body"><b>5</b> 전기에너지</div>
+                    <div class="card"><!-- text-white bg-secondary lecture-active -->
+                        <img class="card-img-top" src="{{ i_lecture.image.url }}" alt="lecture_image">
+                        <div class="card-body"><b>{{ i_lecture.num }}</b> {{ i_lecture.title }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div id="lecture_card_nothing" class="row mb-2 d-none">
+                <div class="col">
+                    <div class="card lecture-card-empty">
+                        <div class="card-body text-center">
+                            작성된 항목이 없습니다.
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="row mb-2">
+            <!-- append button -->
+            <div id="lecture_card_footer" class="row mb-2">
                 <div class="col">
-                    <div class="card lecture-card">
-                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
-                        <div class="card-body"><b>5</b> 전기에너지</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row mb-2">
-                <div class="col">
-                    <div class="card lecture-card">
-                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
-                        <div class="card-body"><b>5</b> 전기에너지</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row mb-2">
-                <div class="col">
-                    <div class="card lecture-card">
-                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
-                        <div class="card-body"><b>5</b> 전기에너지</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row mb-2">
-                <div class="col">
-                    <div class="card lecture-card">
-                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
-                        <div class="card-body"><b>5</b> 전기에너지</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="append_card" class="row mb-2">
-                <div class="col">
-                    <div class="card lecture-card">
-                        <div class="card-body text-center"><b>+</b></div>
+                    <div class="card">
+                        <div class="card-body text-center lec_append"><b>+</b></div>
                     </div>
                 </div>
             </div>
@@ -191,11 +182,39 @@
 </div>
 
 <script>
+function dataURItoBlob(dataURI) {
+    var byteString;
+    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+    else
+        byteString = unescape(dataURI.split(',')[1]);
+
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    var ia = new Uint8Array(byteString.length);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ia], {type:mimeString});
+}
+    
 function resizeLectsCol(){
     //TODO : 위에 row들 자동으로 계산해서 픽셀 값 빼기
     $("#lectures_col").css("max-height", window.innerHeight-36);
 }
 
+function clearLecture(){
+    var cvs = document.getElementsByTagName('canvas')[0],
+        ctx = cvs.getContext('2d');
+
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+    $("#lec_num").val("");
+    $("#lec_note").val("");
+    $("#lec_title").focus();
+}
+    
 function vidToCvs(){
     var video = document.getElementsByTagName('video')[0],
         cvs = document.getElementsByTagName('canvas')[0],
@@ -220,13 +239,185 @@ function toVidTime(dbTime){
 function videoCapture(){
     vidToCvs()
     $("#lec_num").val(fromVidTime());
-    $("#lec_title").select();
-    
-    //var dataURI = canvas.toDataURL('image/jpeg'); // can also use 'image/png'
+    $("#lec_title").focus();
 }
+
+function insertIntoLecs(res, dataURL){
+    var lecsLength = $(".lecture-card").length;
+    
+    if($(".lecture-card").length+1 != res.lectureLength){
+        $("#lecs_refresh").trigger("click");
+    }else{
+        var num = $("#lec_num").val();
+        var htmlSrc = "<div class='row mb-2 lecture-card' data-pk='"+res.lecturePk+"'>"
+                    + "<div class='col'>" + "<div class='card'>"
+                    + "<img class='card-img-top' src='"+dataURL+"' alt=''>"
+                    + "<div class='card-body'><b>"+String($("#lec_num").val())+"</b> "+String($("#lec_title").val())+"</div>"
+                    + "</div>" + "</div>" + "</div>";
+        
+        if(res.lectureIndex != 0){
+            $(".lecture-card").eq(res.lectureIndex-1).after(htmlSrc);
+        }else{
+            $("#lectures_col").prepend(htmlSrc);
+        }  
+    }
+}
+
+function displayFromLecs(res){
+    var lecJson = JSON.parse(res);
+    console.log(lecJson);
+}
+
+function refreshLecs(res){
+    var lecsJson = JSON.parse(res);
+    console.log(lecsJson);
+    
+    $(".lecture-card").remove();
+    
+    if(lecsJson.length == 0){
+        $("#lecture_card_nothing").removeClass("d-none");
+    }else{
+        var htmlSrc = '';
+        $.each(lecsJson, function(i, e){
+            htmlSrc = "<div class='row mb-2 lecture-card' data-pk='"+e.pk+"'>"
+                    + "<div class='col'>" + "<div class='card'>"
+                    + "<img class='card-img-top' src='{% get_media_prefix %}"+e.fields.image+"' alt=''>"
+                    + "<div class='card-body'><b>"+e.fields.num+"</b> "+e.fields.title+"</div>"
+                    + "</div>" + "</div>" + "</div>";
+            
+            $("#lecture_card_footer").before(htmlSrc);
+        });
+        
+    }
+    
+}
+    
+$(document).on("click", "#vid_capture", function(e){
+    videoCapture();
+    
+}).on("click", "#lec_create", function(e){
+    $curObj = $(e.currentTarget);
+    $curObj.attr("disabled", true);
+    $curObj.text("추가중");
+    
+    //canvas to blob imgFile
+    var cvs = document.getElementsByTagName('canvas')[0],
+        dataURL = cvs.toDataURL('image/jpeg', 1),
+        blob = dataURItoBlob(dataURL),
+        imgName = '{{ classroom.pk }}_{{ weeklyclass.pk }}_{{ chapter.pk }}_'+$("#lec_num").val()+'.jpg',
+        imgFile = new File([blob], imgName, {type: 'image/jpeg'});
+    
+    //create FormData()
+    var formData = new FormData();
+    formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+    formData.append("chapter", {{ chapter.pk }});
+    formData.append("num", $("#lec_num").val());
+    formData.append("image", imgFile);
+    formData.append("title", String($("#lec_title").val()));
+    formData.append("note", String($("#lec_note").val()));
+    
+    $.ajax({
+        type     : "POST",
+        url      : "{% url 'learn:leccreate' %}",
+        data     : formData,
+        dataType : "json",
+        contentType: false,
+        processData: false,
+        cache: false,
+        success  : function(response){
+            console.log(response);
+            insertIntoLecs(response, dataURL);
+            clearLecture();
+        },
+        error    : function(request, status, error){
+            alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+        },
+    }).always(function(){
+        $curObj.attr("disabled", false);
+        $curObj.text("추가");
+    });
+    
+    
+}).on("click", "#lec_reset", function(e){
+    clearLecture();
+    
+}).on("click", ".lec_append", function(e){
+    clearLecture();
+    videoCapture();
+    
+}).on("click", ".lecture-card", function(e){
+    var $curObj = $(e.currentTarget),
+        curPk = $curObj.attr("data-pk");
+    
+    $curObj.removeClass("lecture-card");
+    $curObj.find(".card").eq(0).removeClass("bg-dark");
+    $curObj.find(".card").eq(0).addClass("bg-secondary");
+    $curObj.addClass("lecture-active");
+    
+    $.ajax({
+        type     : "GET",
+        url      : "{% url 'learn:lecdetail' 991021%}".replace('pk=991021', 'pk='+String(curPk)),
+        dataType : "json",
+        cache: false,
+        success  : function(response){
+            displayFromLecs(response);
+        },
+        error    : function(request, status, error){
+            $curObj.removeClass("lecture-active");
+            $curObj.removeClass("bg-secondary");
+            alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+        },
+    }).always(function(){
+        $curObj.addClass("lecture-card");
+    });
+
+    
+}).on("click", "#lecs_refresh", function(e){
+    $curObj = $(e.currentTarget);
+    $curObj.attr("disabled", true);
+    $curObj.text("새로고침중");
+    
+    $.ajax({
+        type     : "GET",
+        url      : "{% url 'learn:leclist' chapter.pk %}",
+        dataType : "json",
+        cache: false,
+        success  : function(response){
+            refreshLecs(response);
+        },
+        error    : function(request, status, error){
+            alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+        },
+    }).always(function(){
+        $curObj.attr("disabled", false);
+        $curObj.text("목록 새로고침");
+    });
+    
+    
+}).on("mouseenter", ".lecture-card", function(e){
+    var $curObj = $(e.currentTarget);
+    $curObj.find(".col").eq(0).find(".card").eq(0).addClass("text-white");
+    $curObj.eq(0).find(".card").eq(0).addClass("bg-dark");
+    
+}).on("mouseleave", ".lecture-card", function(e){
+    var $curObj = $(e.currentTarget);
+    if($curObj.hasClass("lecture-active")){
+        $curObj.find(".card").eq(0).removeClass("bg-dark");
+        $curObj.find(".card").eq(0).addClass("bg-secondary");
+    }else{
+        $curObj.find(".card").eq(0).removeClass("text-white");
+        $curObj.find(".card").eq(0).removeClass("bg-dark");
+    }
+    
+});
 
 $(document).ready(function(){
     resizeLectsCol();
+    
+    if($(".lecture-card").length == 0){
+        $("#lecture_card_nothing").removeClass("d-none");
+    }
+    
 });
 
 $("video").on('loadeddata', function(){
@@ -237,27 +428,7 @@ $("video").on('loadeddata', function(){
     cvs.width = video.videoWidth;
     cvs.height = video.videoHeight;
 });
-    
-$(document).on("click", "#vid_capture", function(e){
-    videoCapture();
-    
-}).on("mouseenter", ".lecture-card", function(e){
-    var $curObj = $(e.currentTarget);
-    $curObj.addClass("text-white");
-    $curObj.addClass("bg-dark");
-    
-}).on("mouseleave", ".lecture-card", function(e){
-    var $curObj = $(e.currentTarget);
-    if($curObj.hasClass("lecture-active")){
-        $curObj.removeClass("bg-dark");
-        $curObj.addClass("bg-secondary");
-    }else{
-        $curObj.removeClass("text-white");
-        $curObj.removeClass("bg-dark");
-    }
-    
-});
-    
+
 $(window).resize(function() {
     resizeLectsCol();
 });
