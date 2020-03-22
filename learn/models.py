@@ -15,12 +15,12 @@ from django.db import models
 
 #강의
 class ClassRoom(models.Model):
-    year = models.IntegerField(null=False)
-    semester = models.IntegerField(null=False)
-    title = models.CharField(max_length=50, null=True)
-    professor = models.CharField(max_length=20, null=True)
-    opendate = models.CharField(max_length=8, null=True)
-    closedate = models.CharField(max_length=8, null=True)
+    year = models.IntegerField()
+    semester = models.IntegerField()
+    title = models.CharField(max_length=50)
+    professor = models.CharField(max_length=20, blank=True)
+    opendate = models.CharField(max_length=8, blank=True)
+    closedate = models.CharField(max_length=8, blank=True)
     
     def __str__(self):
         return '%d-%d : %s' % (self.year, self.semester, self.title)
@@ -28,8 +28,8 @@ class ClassRoom(models.Model):
 #주차별 강의
 class WeeklyClass(models.Model):
     classroom = models.ForeignKey(ClassRoom, on_delete = models.CASCADE)
-    num = models.IntegerField(null=False)
-    title = models.CharField(max_length=50, null=True)
+    num = models.IntegerField()
+    title = models.CharField(max_length=50, blank=True)
     
     def __str__(self):
         return '%d : %s' % (self.num, self.title)
@@ -37,24 +37,20 @@ class WeeklyClass(models.Model):
 #단원
 class Chapter(models.Model):
     weeklyclass = models.ForeignKey(WeeklyClass, on_delete = models.CASCADE)
-    num = models.IntegerField(null=False)
-    title = models.CharField(max_length=50, null=True)
+    num = models.IntegerField()
+    title = models.CharField(max_length=50, blank=True)
+    video = models.URLField(max_length=200, blank=True)
+    
+    def __str__(self):
+        return '%d : %s (%d) <%s>' % (self.weeklyclass.num, self.weeklyclass.title, self.num, self.title)
     
 #수업
 class Lecture(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete = models.CASCADE)
-    order = models.IntegerField(default=99)
-    title = models.CharField(max_length=50, null=True)
-    note = models.TextField(max_length=500, null=True)
+    num = models.IntegerField(default=0)
+    image = models.ImageField(blank=True)
+    title = models.CharField(max_length=50, blank=True)
+    note = models.TextField(max_length=500, blank=True)
     
     def __str__(self):
         return '%d-%d : %s' % (self.chapter.weeklyclass.num, self.chapter.num, self.title)
-
-#수업 이미지
-class LectureImage(models.Model):
-    lecture = models.ForeignKey(Lecture, on_delete = models.CASCADE)
-    order = models.IntegerField(default=99)
-    image = models.ImageField()
-    
-    def __str__(self):
-        return '%s - %d' % (self.lecture.title, self.order)

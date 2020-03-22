@@ -1,1 +1,268 @@
-<h2>chapter</h2>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/popper.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+<style>
+    img{
+        width: 100%;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+    }
+    
+    video{
+        border: 2px solid #636363;
+        border-radius: .25rem;
+    }
+    
+    canvas{
+        width: 100%;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+    }
+    
+    .card-body{
+        padding: 2px;
+        padding-left: 10px;
+    }
+    
+    #lectures_col{
+        overflow-y: auto;
+    }
+    
+    .lecture-card{
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-auto">
+            <h4>{{ classroom.year }}-{{ classroom.semester }} {{ classroom.title }}</h4>
+        </div>
+        <div class="col-auto">
+            <h5>{{ weeklyclass.num }}주차 : {{ weeklyclass.title }}</h5>
+        </div>
+        <div class="col-auto">
+            <h6>{{ chapter.num }}): {{ chapter.title }}</h6>
+        </div>
+    </div>
+    <div class="row">
+        <!--
+            {% for i_chapter in chapters %}
+                <li>
+                    <a href="{% url 'learn:chapter' classroom.id weeklyclass.id i_chapter.id %}">
+                        <b>{{ i_chapter.num }})</b> {{ i_chapter.title }}
+                    </a>
+                </li>
+            {% endfor %}
+            
+            <div class="row">
+                <div class="col">
+                    
+                </div>
+            </div>
+        -->
+        <div id="video_col" class="col-6">
+            <div class="row mb-3">
+                <div class="col">
+                        <video class="shadow" width="100%" controls autoplay="false">
+                            <source src="{{ chapter.video }}" type="video/mp4">
+                        </video>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-right">
+                    <!-- progress bar / 3초 전 / 재생 일시정지 /3초 후 / 배속 buttons -->
+                    <button id="vid_capture" type="button" class="btn btn-sm btn-info">캡처</button>
+                </div>
+            </div>
+        </div>
+        <div id="lecture_col" class="col-4">
+            <div class="row mb-2">
+                <div class="col">
+                    <canvas></canvas>
+                    <!-- <img src="{% static 'img/lecture_sample.png' %}"> -->
+                </div>
+            </div>
+            <div class="row mb-1">
+                <div class="col-3">
+                    <input id="lec_num" type="number" class="form-control" placeholder="번호">
+                </div>
+                <div class="col-9">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">제목</span>
+                      </div>
+                      <input id="lec_title" type="text" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-1">
+                <div class="col">
+                    <textarea id="lec_note" class="form-control" rows="6"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col text-right">
+                    <button id="lec_reset" type="button" class="btn btn-sm btn-secondary">모두 지우기</button>
+                    <button id="lec_add" type="button" class="btn btn-sm btn-success">추가</button>
+                    <!-- 수정할 때 -->
+                    <!--
+                    <button id="lec_del" type="button" class="btn btn-sm btn-danger">삭제</button>
+                    <button id="lec_save" type="button" class="btn btn-sm btn-success">저장</button>
+                    -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="lectures_col" class="col-2">
+            <div class="row mb-2">
+                <div class="col">
+                    <div class="card lecture-card text-white bg-secondary lecture-active">
+                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
+                        <div class="card-body"><b>5</b> 전기에너지</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-2">
+                <div class="col">
+                    <div class="card lecture-card">
+                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
+                        <div class="card-body"><b>5</b> 전기에너지</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-2">
+                <div class="col">
+                    <div class="card lecture-card">
+                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
+                        <div class="card-body"><b>5</b> 전기에너지</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-2">
+                <div class="col">
+                    <div class="card lecture-card">
+                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
+                        <div class="card-body"><b>5</b> 전기에너지</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-2">
+                <div class="col">
+                    <div class="card lecture-card">
+                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
+                        <div class="card-body"><b>5</b> 전기에너지</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-2">
+                <div class="col">
+                    <div class="card lecture-card">
+                        <img class="card-img-top" src="{% static 'img/lecture_sample.png' %}" alt="Card image cap">
+                        <div class="card-body"><b>5</b> 전기에너지</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="append_card" class="row mb-2">
+                <div class="col">
+                    <div class="card lecture-card">
+                        <div class="card-body text-center"><b>+</b></div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+function resizeLectsCol(){
+    //TODO : 위에 row들 자동으로 계산해서 픽셀 값 빼기
+    $("#lectures_col").css("max-height", window.innerHeight-36);
+}
+
+function vidToCvs(){
+    var video = document.getElementsByTagName('video')[0],
+        cvs = document.getElementsByTagName('canvas')[0],
+        ctx = cvs.getContext('2d');
+    
+    ctx.drawImage(video, 0, 0, cvs.width, cvs.height);
+}
+
+//video currenTime -> dbTime
+function fromVidTime(){
+    var video = document.getElementsByTagName('video')[0],
+        totalNum = Math.trunc(video.currentTime);
+    
+    return Math.trunc(totalNum/60)*100 + totalNum%60;
+}
+
+//dbTime -> video currentTime
+function toVidTime(dbTime){
+    return Math.trunc(dbTime/100)*60 + dbTime%100;
+}
+
+function videoCapture(){
+    vidToCvs()
+    $("#lec_num").val(fromVidTime());
+    $("#lec_title").select();
+    
+    //var dataURI = canvas.toDataURL('image/jpeg'); // can also use 'image/png'
+}
+
+$(document).ready(function(){
+    resizeLectsCol();
+});
+
+$("video").on('loadeddata', function(){
+    //set Canvas size as Video
+    var video = document.getElementsByTagName('video')[0],
+        cvs = document.getElementsByTagName('canvas')[0];
+    
+    cvs.width = video.videoWidth;
+    cvs.height = video.videoHeight;
+});
+    
+$(document).on("click", "#vid_capture", function(e){
+    videoCapture();
+    
+}).on("mouseenter", ".lecture-card", function(e){
+    var $curObj = $(e.currentTarget);
+    $curObj.addClass("text-white");
+    $curObj.addClass("bg-dark");
+    
+}).on("mouseleave", ".lecture-card", function(e){
+    var $curObj = $(e.currentTarget);
+    if($curObj.hasClass("lecture-active")){
+        $curObj.removeClass("bg-dark");
+        $curObj.addClass("bg-secondary");
+    }else{
+        $curObj.removeClass("text-white");
+        $curObj.removeClass("bg-dark");
+    }
+    
+});
+    
+$(window).resize(function() {
+    resizeLectsCol();
+});
+</script>
+    
+</body>
+</html>
+    

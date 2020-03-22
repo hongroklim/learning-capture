@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from . import views
 
@@ -9,5 +9,10 @@ urlpatterns = [
     
     path('<int:classroom>/', views.weeklyclasses.as_view(), name='weeklyclasses'),
     
-    path('chapter/', views.chapter.as_view(), name='chapter'),
+    path('<int:classroom>/<int:weeklyclass>/', views.chapters.as_view(), name='chapters'),
+    
+    re_path(r'^(?P<classroom>\d+)/(?P<weeklyclass>\d+)/(?P<pk>\d+)/(?:(?P<lecture>\d+/))?$',
+            views.chapter.as_view(),
+            name='chapter'),
+    
 ]

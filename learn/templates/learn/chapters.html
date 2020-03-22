@@ -1,0 +1,12 @@
+<h2>chapters</h2>
+<h4>{{ classroom.year }}년도 {{ classroom.semester }}학기 : {{ classroom.title }} ({{ classroom.professor }} 교수님)</h4>
+<h5>{{ weeklyclass.num }}주차 : {{ weeklyclass.title }}</h5>
+<ul>
+    {% for chapter in object_list %}
+        <li>
+            <a href="{% url 'learn:chapter' classroom.id weeklyclass.id chapter.id %}">
+                <b>{{ chapter.num }})</b> {{ chapter.title }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
