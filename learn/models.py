@@ -1,5 +1,7 @@
 from django.db import models
 from django.urls import reverse
+from ELearningPy.settings import MEDIA_ROOT
+import os
 
 #TODO : INTEGER RANGE
 
@@ -26,6 +28,7 @@ class ClassRoom(models.Model):
     def __str__(self):
         return '%d-%d : %s' % (self.year, self.semester, self.title)
 
+    
 #주차별 강의
 class WeeklyClass(models.Model):
     classroom = models.ForeignKey(ClassRoom, on_delete = models.CASCADE)
@@ -35,6 +38,7 @@ class WeeklyClass(models.Model):
     def __str__(self):
         return '%d : %s' % (self.num, self.title)
 
+    
 #단원
 class Chapter(models.Model):
     weeklyclass = models.ForeignKey(WeeklyClass, on_delete = models.CASCADE)
@@ -46,6 +50,7 @@ class Chapter(models.Model):
     def __str__(self):
         return '%d : %s (%d) <%s>' % (self.weeklyclass.num, self.weeklyclass.title, self.num, self.title)
     
+
 #수업
 class Lecture(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete = models.CASCADE)
@@ -60,3 +65,7 @@ class Lecture(models.Model):
     def get_absolute_url(self):
         param = [self.chapter.weeklyclass.classroom.pk, self.chapter.weeklyclass.pk, self.chapter.pk]
         return reverse('learn:chapter', args=param)
+    
+    def delete(self, *args, **kargs):
+        os.remove(os.path.join(MEDIA_ROOT, self.image.path))
+        super(Lecture, self).delete(*args, **kargs)

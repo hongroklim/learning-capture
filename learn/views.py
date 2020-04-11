@@ -1,6 +1,6 @@
 from django.shortcuts import render, resolve_url, redirect, get_object_or_404, get_list_or_404
 from django.views.generic import ListView, DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from django.core.serializers import serialize
@@ -75,12 +75,9 @@ class leccreate(LectureAjaxResponseMixin, CreateView):
     
     def form_valid(self, form):
         response = super().form_valid(form)
-        #return할 때 자기가 이 chapter에서 몇 번째 lecture인지 알려줌.
-        #length
-        #index
         data = {
             'lectureLength': Lecture.objects.filter(chapter__pk=self.object.chapter.pk).count(),
-            'lectureIndex': Lecture.objects.filter(chapter__pk=self.object.chapter.pk, num__lte=self.object.num).count(),
+            'lectureIndex': Lecture.objects.filter(chapter__pk=self.object.chapter.pk, num__lte=self.object.num).count()-1,
             'lecturePk': self.object.pk
         }
         return JsonResponse(data)
@@ -96,12 +93,43 @@ class leclist(ListView):
         data = serialize('json', self.get_queryset())
         return JsonResponse(data, safe=False, **response_kwargs)
 
+
 class lecdetail(DetailView):
     model = Lecture
     
     def get_queryset(self):
-        return get_object_or_404(Lecture, pk=self.kwargs['pk'])
+        return Lecture.objects.filter(pk=self.kwargs['pk'])
     
     def render_to_response(self, context, **response_kwargs):
         data = serialize('json', self.get_queryset())
         return JsonResponse(data, safe=False, **response_kwargs)
+
+
+class lecdelete(DeleteView):
+    model = Lecture
+    
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        data = {
+            'lectureLength': Lecture.objects.filter(chapter__pk=self.object.chapter.pk).count()-1,
+            'lectureIndex': Lecture.objects
+                            .filter(chapter__pk=self.object.chapter.pk, num__lte=self.object.num)
+                            .exclude(num=self.object.num, pk__gte=self.object.pk).count()
+        }
+        self.object.delete()
+        return JsonResponse(data)
+
+
+class lecupdate(UpdateView):
+    model = Lecture
+    fields = ['title', 'note']
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        data = {
+            'lectureLength': Lecture.objects.filter(chapter__pk=self.object.chapter.pk).count(),
+            'lectureIndex': Lecture.objects.filter(chapter__pk=self.object.chapter.pk, num__lte=self.object.num).count()-1,
+            'lecturePk': self.object.pk,
+            'lectureTitle': self.object.title
+        }
+        return JsonResponse(data)

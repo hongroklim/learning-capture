@@ -19,10 +19,10 @@ urlpatterns = [
     
     path('lecture/<int:chapter>', views.leclist.as_view(), name='leclist'),
     
-    path('lecture/pk=<int:pk>', views.lecdetail.as_view(), name='lecdetail'),
+    path('lecture/detail/<int:pk>', views.lecdetail.as_view(), name='lecdetail'),
     
-    #path('/lecture/delete', views.lecdelete.as_view(), name='lecdelete'),
+    path('lecture/delete/<int:pk>', views.lecdelete.as_view(), name='lecdelete'),
     
-    #path('/lecture/update', views.lecupdate.as_view(), name='lecupdate'),
+    path('lecture/update/<int:pk>', views.lecupdate.as_view(), name='lecupdate'),
     
 ]

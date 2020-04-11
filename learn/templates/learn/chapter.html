@@ -88,6 +88,7 @@
             <div class="row">
                 <div class="col text-right">
                     <!-- progress bar / 3초 전 / 재생 일시정지 /3초 후 / 배속 buttons -->
+                    <button type="button" class="btn btn-sm btn-outline-dark lec_append">새로 캡처</button>
                     <button id="vid_capture" type="button" class="btn btn-sm btn-info">캡처</button>
                 </div>
             </div>
@@ -102,16 +103,16 @@
                 </div>
             </div>
             <div class="row mb-1">
-                <div class="col-3">
-                    <input id="lec_num" type="number" class="form-control" placeholder="번호">
-                </div>
-                <div class="col-9">
+                <div class="col-4">
                     <div class="input-group">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">제목</span>
+                      <input id="lec_num" type="number" class="form-control">
+                      <div class="input-group-append">
+                        <button id="btn_lec_num" class="btn btn-outline-secondary" type="button">▶</button>
                       </div>
-                      <input id="lec_title" type="text" class="form-control">
                     </div>
+                </div>
+                <div class="col-8">
+                  <input id="lec_title" type="text" class="form-control">
                 </div>
             </div>
             <div class="row mb-1">
@@ -124,10 +125,8 @@
                     <button id="lec_reset" type="button" class="btn btn-sm btn-secondary">지우기</button>
                     <button id="lec_create" type="button" class="btn btn-sm btn-success">추가</button>
                     <!-- 수정할 때 -->
-                    <!--
-                    <button id="lec_delete" type="button" class="btn btn-sm btn-danger">삭제</button>
-                    <button id="lec_update" type="button" class="btn btn-sm btn-success">저장</button>
-                    -->
+                    <button id="lec_delete" type="button" class="btn btn-sm btn-danger d-none">삭제</button>
+                    <button id="lec_update" type="button" class="btn btn-sm btn-outline-success d-none">수정</button>
                 </div>
             </div>
         </div>
@@ -135,13 +134,11 @@
         <!-- lectures -->
         <div id="lectures_col" class="col-2">
             <!-- lectures header -->
-            <!-- TODO : put on header -->
             <div id="lecture_card_header" class="row mb-2">
                 <div class="col">
                     <div class="card">
                         <div class="card-body text-right">
                             <button id="lecs_refresh" type="button" class="btn btn-sm btn-light">목록 새로고침</button>
-                            <button type="button" class="btn btn-sm btn-outline-dark lec_append">추가</button>
                         </div>
                     </div>
                 </div>
@@ -209,7 +206,10 @@ function clearLecture(){
         ctx = cvs.getContext('2d');
 
     ctx.clearRect(0, 0, cvs.width, cvs.height);
-
+    
+    $("#lec_delete").addClass("d-none");
+    $("#lec_update").addClass("d-none");
+    
     $("#lec_num").val("");
     $("#lec_note").val("");
     $("#lec_title").focus();
@@ -223,6 +223,13 @@ function vidToCvs(){
     ctx.drawImage(video, 0, 0, cvs.width, cvs.height);
 }
 
+function imgToCvs(image){
+    var cvs = document.getElementsByTagName('canvas')[0],
+        ctx = cvs.getContext('2d');
+    
+    ctx.drawImage(image, 0, 0, cvs.width, cvs.height);
+}
+    
 //video currenTime -> dbTime
 function fromVidTime(){
     var video = document.getElementsByTagName('video')[0],
@@ -237,12 +244,13 @@ function toVidTime(dbTime){
 }
 
 function videoCapture(){
-    vidToCvs()
+    vidToCvs();
     $("#lec_num").val(fromVidTime());
     $("#lec_title").focus();
 }
 
 function insertIntoLecs(res, dataURL){
+    console.log(res);
     var lecsLength = $(".lecture-card").length;
     
     if($(".lecture-card").length+1 != res.lectureLength){
@@ -262,10 +270,51 @@ function insertIntoLecs(res, dataURL){
         }  
     }
 }
+    
+function deleteFromLecs(res){
+    console.log(res);
+    var lecsLength = $(".lecture-card").length;
+    
+    if($(".lecture-card").length-1 != res.lectureLength){
+        $("#lecs_refresh").trigger("click");
+    }else{
+        $(".lecture-card").eq(res.lectureIndex).remove();
+        if(res.lectureLength == 0){
+            $("#lecture_card_nothing").removeClass("d-none");
+        }
+    }
+}
+
+function updateIntoLecs(res){
+    console.log(res);
+    var lecsLength = $(".lecture-card").length;
+    
+    if($(".lecture-card").length != res.lectureLength){
+        $("#lecs_refresh").trigger("click");
+    }else{
+        var $cardBody = $(".lecture-card").eq(res.lectureIndex).find(".col").find(".card").find(".card-body"),
+            prvsHtml = $cardBody.html(),
+            curHtml = prvsHtml.substring(0, prvsHtml.indexOf("</b> ")+5) + res.lectureTitle;
+        
+        $cardBody.html(curHtml);
+    }
+}
 
 function displayFromLecs(res){
-    var lecJson = JSON.parse(res);
-    console.log(lecJson);
+    var lecJson = JSON.parse(res),
+        lec = lecJson[0],
+        img = new Image();
+    
+    img.src = '{% get_media_prefix %}' + lec.fields.image;
+    imgToCvs(img);
+    
+    $("#lec_num").val(lec.fields.num);
+    $("#lec_title").val(lec.fields.title);
+    $("#lec_note").val(lec.fields.note);
+    
+    $("#lec_delete").removeClass("d-none").attr("data-pk", lec.pk);
+    $("#lec_update").removeClass("d-none").attr({"data-pk": lec.pk, "data-num": lec.fields.num});
+    
 }
 
 function refreshLecs(res){
@@ -295,10 +344,23 @@ function refreshLecs(res){
 $(document).on("click", "#vid_capture", function(e){
     videoCapture();
     
+}).on("click", "#btn_lec_num", function(e){
+    var targetNum = $("#lec_num").val(),
+        video = document.getElementsByTagName('video')[0];
+    
+    if(targetNum == null || targetNum == "")
+        return;
+    
+    video.currentTime = toVidTime(targetNum);
+    
 }).on("click", "#lec_create", function(e){
-    $curObj = $(e.currentTarget);
+    var $curObj = $(e.currentTarget);
     $curObj.attr("disabled", true);
     $curObj.text("추가중");
+    
+    var lecNum = $("#lec_num").val();
+    if(lecNum == null || lecNum == "")
+        lecNum = 0;
     
     //canvas to blob imgFile
     var cvs = document.getElementsByTagName('canvas')[0],
@@ -311,7 +373,7 @@ $(document).on("click", "#vid_capture", function(e){
     var formData = new FormData();
     formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
     formData.append("chapter", {{ chapter.pk }});
-    formData.append("num", $("#lec_num").val());
+    formData.append("num", lecNum);
     formData.append("image", imgFile);
     formData.append("title", String($("#lec_title").val()));
     formData.append("note", String($("#lec_note").val()));
@@ -325,7 +387,6 @@ $(document).on("click", "#vid_capture", function(e){
         processData: false,
         cache: false,
         success  : function(response){
-            console.log(response);
             insertIntoLecs(response, dataURL);
             clearLecture();
         },
@@ -338,33 +399,130 @@ $(document).on("click", "#vid_capture", function(e){
     });
     
     
+}).on("click", "#lec_delete", function(e){
+    var $curObj = $(e.currentTarget);
+    $curObj.attr("disabled", true);
+    $curObj.text("삭제중");
+    
+    var curPk = $curObj.attr("data-pk"),
+        targetUrl = "{% url 'learn:lecdelete' 991021 %}".replace('991021', String(curPk)),
+        formData = new FormData();
+    formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+    formData.append("pk", String($curObj.attr("data-pk")));
+    
+    $.ajax({
+        type     : "POST",
+        url      : targetUrl,
+        data     : formData,
+        dataType : "json",
+        contentType: false,
+        processData: false,
+        cache: false,
+        success  : function(response){
+            deleteFromLecs(response);
+            clearLecture();
+        },
+        error    : function(request, status, error){
+            alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+        },
+    }).always(function(){
+        $curObj.attr("disabled", false);
+        $curObj.text("삭제");
+    });
+    
+    
+}).on("click", "#lec_update", function(e){
+    var $curObj = $(e.currentTarget);
+    $curObj.attr("disabled", true);
+    $curObj.text("수정중");
+    
+    var curPk = $curObj.attr("data-pk"),
+        curNum = $("#lec_num").val(),
+        prvsNum = $curObj.attr("data-num");
+    
+    if(curNum == prvsNum){
+        //update
+        var targetUrl = "{% url 'learn:lecupdate' 991021 %}".replace('991021', String(curPk)),
+            formData = new FormData();
+        formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+        formData.append("pk", String($curObj.attr("data-pk")));
+        formData.append("title", String($("#lec_title").val()));
+        formData.append("note", String($("#lec_note").val()));
+
+        $.ajax({
+            type     : "POST",
+            url      : targetUrl,
+            data     : formData,
+            dataType : "json",
+            contentType: false,
+            processData: false,
+            cache: false,
+            success  : function(response){
+                updateIntoLecs(response);
+            },
+            error    : function(request, status, error){
+                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+            },
+        }).always(function(){
+            $curObj.attr("disabled", false);
+            $curObj.text("수정");
+        });
+    }else{
+        //delete -> create
+        var targetUrl = "{% url 'learn:lecdelete' 991021 %}".replace('991021', String(curPk)),
+            formData = new FormData();
+        formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+        formData.append("pk", String($curObj.attr("data-pk")));
+        $.ajax({
+            type     : "POST",
+            url      : targetUrl,
+            data     : formData,
+            dataType : "json",
+            contentType: false,
+            processData: false,
+            cache: false,
+            success  : function(response){
+                deleteFromLecs(response);
+                $("#lec_create").trigger("click");
+            },
+            error    : function(request, status, error){
+                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+            },
+        }).always(function(){
+            $curObj.attr("disabled", false);
+            $curObj.text("수정");
+        });
+    }
+    
+    
 }).on("click", "#lec_reset", function(e){
     clearLecture();
     
 }).on("click", ".lec_append", function(e){
+    $(".card.bg-secondary").removeClass("bg-secondary");
     clearLecture();
     videoCapture();
     
 }).on("click", ".lecture-card", function(e){
+    
+    
     var $curObj = $(e.currentTarget),
-        curPk = $curObj.attr("data-pk");
+        curPk = $curObj.attr("data-pk"),
+        targetUrl = "{% url 'learn:lecdetail' 991021 %}".replace('991021', String(curPk));
     
     $curObj.removeClass("lecture-card");
-    $curObj.find(".card").eq(0).removeClass("bg-dark");
-    $curObj.find(".card").eq(0).addClass("bg-secondary");
-    $curObj.addClass("lecture-active");
     
     $.ajax({
         type     : "GET",
-        url      : "{% url 'learn:lecdetail' 991021%}".replace('pk=991021', 'pk='+String(curPk)),
+        url      : targetUrl,
         dataType : "json",
         cache: false,
         success  : function(response){
             displayFromLecs(response);
+            $(".card.bg-secondary").removeClass("bg-secondary");
+            $curObj.find(".card").eq(0).addClass("bg-secondary");
         },
         error    : function(request, status, error){
-            $curObj.removeClass("lecture-active");
-            $curObj.removeClass("bg-secondary");
             alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
         },
     }).always(function(){
@@ -436,4 +594,3 @@ $(window).resize(function() {
     
 </body>
 </html>
-    
