@@ -27,13 +27,45 @@
         border-radius: .25rem;
     }
     
+    kbd{
+        line-height: 2;
+    }
+    
+    .list-group-item{
+        padding: 0.25rem 1.25rem;
+    }
+    
+    .container-fluid{
+        padding-top: 15px;
+    }
+    
     .card-body{
         padding: 2px;
         padding-left: 10px;
     }
     
+    #vid_interval{
+        width: 40px;
+        text-align: center;
+    }
+    
     #lectures_col{
         overflow-y: auto;
+    }
+    
+    #lecture_card_header > div.col > div.card{
+        border-radius: 0;
+    }
+    
+    #classroom_title{
+        color: #343a40;
+        text-decoration: underline;
+    }
+    
+    #classroom_title:hover{
+        color: #343a40;
+        font-weight: bold;
+        text-decoration: none;
     }
     
     .lecture-card{
@@ -50,34 +82,8 @@
 <body>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-auto">
-            <h4>{{ classroom.year }}-{{ classroom.semester }} {{ classroom.title }}</h4>
-        </div>
-        <div class="col-auto">
-            <h5>{{ weeklyclass.num }}주차 : {{ weeklyclass.title }}</h5>
-        </div>
-        <div class="col-auto">
-            <h6>{{ chapter.num }}): {{ chapter.title }}</h6>
-        </div>
-    </div>
-    <div class="row">
-        <!--
-            {% for i_chapter in chapters %}
-                <li>
-                    <a href="{% url 'learn:chapter' classroom.id weeklyclass.id i_chapter.id %}">
-                        <b>{{ i_chapter.num }})</b> {{ i_chapter.title }}
-                    </a>
-                </li>
-            {% endfor %}
-            
-            <div class="row">
-                <div class="col">
-                    
-                </div>
-            </div>
-        -->
         <!-- video -->
-        <div id="video_col" class="col-6">
+        <div id="video_col" class="col-5">
             <div class="row mb-3">
                 <div class="col">
                     <video class="shadow" width="100%" controls autoplay="false" crossorigin="anonymous">
@@ -85,17 +91,66 @@
                     </video>
                 </div>
             </div>
-            <div class="row">
-                <div class="col text-right">
+            <div class="row mb-3">
+                <div class="col-auto mr-auto d-inline-flex">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-outline-dark btn-sm">
+                            <input type="radio" name="options" class="vid-speed-btn" data-speed="0.5">&#9656;
+                        </label>
+                        <label class="btn btn-outline-dark btn-sm active">
+                            <input type="radio" name="options" class="vid-speed-btn" data-speed="1.0" checked>&#9654;
+                        </label>
+                        <label class="btn btn-outline-dark btn-sm">
+                            <input type="radio" name="options" class="vid-speed-btn" data-speed="2.0">&#9656;&#9656;
+                        </label>
+                    </div>&emsp;
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-prepend">
+                            <button id="vid_prvs_btn" type="button" class="btn btn-secondary btn-sm">&ensp;&#x21B6;&ensp;</button>
+                        </div>
+                        <input id="vid_interval" type="text" class="form-control" maxlength="2" value="3">
+                        <div class="input-group-append">
+                            <button id="vid_next_btn" type="button" class="btn btn-secondary btn-sm">&ensp;&#x21B7;&ensp;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto text-right">
                     <!-- progress bar / 3초 전 / 재생 일시정지 /3초 후 / 배속 buttons -->
-                    <button type="button" class="btn btn-sm btn-outline-dark lec_append">새로 캡처</button>
+                    <button type="button" class="btn btn-sm btn-outline-info lec_append">새로 캡처</button>
                     <button id="vid_capture" type="button" class="btn btn-sm btn-info">캡처</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-auto mr-auto mb-3">
+                    <h4>{{ chapter.num }}.&nbsp;{{ chapter.title }}</h4>
+                    <a id="classroom_title" href="{% url 'learn:weeklyclasses' classroom.id %}">{{ classroom.title }}</a>&nbsp;
+                    <small class="text-muted">{{ classroom.year }}년 {{ classroom.semester }}학기</small><br>
+                </div>
+                <div class="col-auto">
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-dark">
+                            {{ weeklyclass.title }}&nbsp;<small class="text-muted">{{ weeklyclass.num }}주차</small>
+                        </li>
+                        {% for i_chapter in chapters %}
+                            {% if i_chapter.id == chapter.id %}
+                                <li class="list-group-item">
+                                    <b>{{ i_chapter.num }}.&nbsp;{{ i_chapter.title }}</b>
+                                </li>
+                            {% else %}
+                                <li class="list-group-item list-group-item-action">
+                                    <a class="text-muted" href="{% url 'learn:chapter' classroom.id weeklyclass.id i_chapter.id %}">
+                                        {{ i_chapter.num }}.&nbsp;{{ i_chapter.title }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>
         
         <!-- lecture -->
-        <div id="lecture_col" class="col-4">
+        <div id="lecture_col" class="col-5">
             <div class="row mb-2">
                 <div class="col">
                     <canvas></canvas>
@@ -107,7 +162,7 @@
                     <div class="input-group">
                       <input id="lec_num" type="number" class="form-control">
                       <div class="input-group-append">
-                        <button id="btn_lec_num" class="btn btn-outline-secondary" type="button">▶</button>
+                        <button id="btn_lec_num" type="button" class="btn btn-outline-secondary" tabindex="-1">&#9655;</button>
                       </div>
                     </div>
                 </div>
@@ -121,7 +176,20 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col text-right">
+                <div class="col-auto mb-2 pr-0">
+                    <small class="text-muted">
+                        <kbd>Ctrl + Q</kbd>캡처&ensp;
+                        <kbd>Ctrl + &#x21A9;</kbd>추가(수정)
+                    </small>
+                </div>
+                <div class="col-auto mr-auto mb-2">
+                    <small class="text-muted">
+                        <kbd>Shift + Ctrl</kbd>이전&ensp;
+                        <kbd>Shift + Alt</kbd>이후&ensp;
+                        <kbd>Shift + &#9251;</kbd>재생&ensp;
+                    </small>
+                </div>
+                <div class="col-auto text-right">
                     <button id="lec_reset" type="button" class="btn btn-sm btn-secondary">지우기</button>
                     <button id="lec_create" type="button" class="btn btn-sm btn-success">추가</button>
                     <!-- 수정할 때 -->
@@ -134,7 +202,7 @@
         <!-- lectures -->
         <div id="lectures_col" class="col-2">
             <!-- lectures header -->
-            <div id="lecture_card_header" class="row mb-2">
+            <div id="lecture_card_header" class="row mb-2 sticky-top">
                 <div class="col">
                     <div class="card">
                         <div class="card-body text-right">
@@ -198,7 +266,7 @@ function dataURItoBlob(dataURI) {
     
 function resizeLectsCol(){
     //TODO : 위에 row들 자동으로 계산해서 픽셀 값 빼기
-    $("#lectures_col").css("max-height", window.innerHeight-36);
+    $("#lectures_col").css("max-height", window.innerHeight-15);
 }
 
 function clearLecture(){
@@ -341,7 +409,23 @@ function refreshLecs(res){
     
 }
     
-$(document).on("click", "#vid_capture", function(e){
+$(document).on("click", ".vid-speed-btn", function(e){
+    var speed = $(e.currentTarget).attr("data-speed"),
+        video = document.getElementsByTagName('video')[0];
+    
+    video.playbackRate = speed;
+    
+}).on("click", "#vid_prvs_btn", function(e){
+    var interval = parseInt($("#vid_interval").val()),
+        video = document.getElementsByTagName('video')[0];
+    video.currentTime = video.currentTime - interval;
+    
+}).on("click", "#vid_next_btn", function(e){
+    var interval = parseInt($("#vid_interval").val()),
+        video = document.getElementsByTagName('video')[0];
+    video.currentTime = video.currentTime + interval;
+    
+}).on("click", "#vid_capture", function(e){
     videoCapture();
     
 }).on("click", "#btn_lec_num", function(e){
@@ -565,6 +649,38 @@ $(document).on("click", "#vid_capture", function(e){
     }else{
         $curObj.find(".card").eq(0).removeClass("text-white");
         $curObj.find(".card").eq(0).removeClass("bg-dark");
+    }
+    
+}).on("keydown", "#lec_num, #lec_title, #lec_note", function(e){
+    if((e.metaKey||e.shiftKey) && (e.metaKey||e.ctrlKey)){
+        //console.log( "You pressed SHIFT + CTRL" );
+        e.preventDefault();
+        $("#vid_prvs_btn").trigger("click");
+        
+    }else if((e.metaKey||e.shiftKey) && (e.metaKey||e.altKey)){
+        //console.log( "You pressed SHIFT + CTRL" );
+        e.preventDefault();
+        $("#vid_next_btn").trigger("click");
+        
+    }else if((e.metaKey||e.shiftKey) && (e.which==32)){
+        //console.log( "You pressed SHIFT + SPACE" );
+        e.preventDefault();
+        var video = document.getElementsByTagName('video')[0];
+        if(video.paused) video.play(); else video.pause();
+        
+    }else if((e.metaKey||e.ctrlKey) && (e.which==81||e.which==113)){
+        //console.log( "You pressed CTRL + Q" );
+        e.preventDefault();
+        $("#vid_capture").trigger("click");
+        
+    }else if((e.metaKey||e.ctrlKey) && (e.which==13)){
+        //console.log( "You pressed CTRL + ENTER" );
+        e.preventDefault();
+        if(! $("#lec_update").hasClass("d-none")){
+            $("#lec_update").trigger("click");
+        }else{
+            $("#lec_create").trigger("click");
+        }
     }
     
 });

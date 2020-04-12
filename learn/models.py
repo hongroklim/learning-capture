@@ -27,6 +27,9 @@ class ClassRoom(models.Model):
     
     def __str__(self):
         return '%d-%d : %s' % (self.year, self.semester, self.title)
+    
+    class Meta:
+        ordering = ['-year', 'semester', 'title']
 
     
 #주차별 강의
@@ -37,6 +40,9 @@ class WeeklyClass(models.Model):
     
     def __str__(self):
         return '%d : %s' % (self.num, self.title)
+    
+    class Meta:
+        ordering = ['-classroom', 'num']
 
     
 #단원
@@ -50,6 +56,9 @@ class Chapter(models.Model):
     def __str__(self):
         return '%d : %s (%d) <%s>' % (self.weeklyclass.num, self.weeklyclass.title, self.num, self.title)
     
+    class Meta:
+        ordering = ['weeklyclass', 'num']
+
 
 #수업
 class Lecture(models.Model):
@@ -61,6 +70,9 @@ class Lecture(models.Model):
     
     def __str__(self):
         return '%d-%d-%d-%d : %s' % (self.chapter.weeklyclass.classroom.pk, self.chapter.weeklyclass.num, self.chapter.num, self.num, self.title)
+    
+    class Meta:
+        ordering = ['chapter', 'num']
     
     def get_absolute_url(self):
         param = [self.chapter.weeklyclass.classroom.pk, self.chapter.weeklyclass.pk, self.chapter.pk]
