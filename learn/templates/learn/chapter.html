@@ -87,7 +87,9 @@
             <div class="row mb-3">
                 <div class="col">
                     <video class="shadow" width="100%" controls autoplay="false" crossorigin="anonymous">
-                        <source src="https://cors-anywhere.herokuapp.com/{{ chapter.videolink }}" type="video/mp4">
+                        <source src="{{ chapter.videolink }}" type="video/mp4">
+                        <!-- with extesion Allow CORS: Access-Control-Allow-Origin -->
+                        <!--<source src="http://cors-anywhere.herokuapp.com/{{ chapter.videolink }}" type="video/mp4">-->
                     </video>
                 </div>
             </div>
@@ -318,7 +320,6 @@ function videoCapture(){
 }
 
 function insertIntoLecs(res, dataURL){
-    console.log(res);
     var lecsLength = $(".lecture-card").length;
     
     if($(".lecture-card").length+1 != res.lectureLength){
@@ -334,13 +335,14 @@ function insertIntoLecs(res, dataURL){
         if(res.lectureIndex != 0){
             $(".lecture-card").eq(res.lectureIndex-1).after(htmlSrc);
         }else{
-            $("#lectures_col").prepend(htmlSrc);
-        }  
+            $("#lecture_card_header").after(htmlSrc);
+            $("#lecture_card_nothing").addClass("d-none");
+        }
+	    document.getElementsByClassName("lecture-card")[res.lectureIndex].scrollIntoView({block: "end"});
     }
 }
     
 function deleteFromLecs(res){
-    console.log(res);
     var lecsLength = $(".lecture-card").length;
     
     if($(".lecture-card").length-1 != res.lectureLength){
@@ -394,6 +396,7 @@ function refreshLecs(res){
     if(lecsJson.length == 0){
         $("#lecture_card_nothing").removeClass("d-none");
     }else{
+        $("#lecture_card_nothing").addClass("d-none");
         var htmlSrc = '';
         $.each(lecsJson, function(i, e){
             htmlSrc = "<div class='row mb-2 lecture-card' data-pk='"+e.pk+"'>"
