@@ -4,8 +4,9 @@
     {% for weeklyclass in object_list %}
         <li>
             <a href="{% url 'learn:chapters' classroom.id weeklyclass.id %}">
-                {{ weeklyclass.num }}주차 : {{ weeklyclass.title }}
+                <b>{{ weeklyclass.num }}주차 : {{ weeklyclass.title }}</b>
             </a>
+           &emsp;- <a href="{% url 'learn:print' classroom.id weeklyclass.id %}">출력</a>
         </li>
     {% endfor %}
 </ul>

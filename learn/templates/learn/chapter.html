@@ -338,7 +338,12 @@ function insertIntoLecs(res, dataURL){
             $("#lecture_card_header").after(htmlSrc);
             $("#lecture_card_nothing").addClass("d-none");
         }
-	    document.getElementsByClassName("lecture-card")[res.lectureIndex].scrollIntoView({block: "end"});
+	    setTimeout(function(){
+	       document.getElementsByClassName("lecture-card")[res.lectureIndex].scrollIntoView({behavior: "smooth", block: "end"});
+	    }, 500);
+	    //var colsElement = document.getElementById("lectures_col");
+	    //colsElement.scrollTop = colsElement.scrollHeight+142;
+	    //document.getElementsByClassName("lecture-card")[res.lectureIndex+1].scrollIntoView({block: "end"});
     }
 }
     
@@ -389,7 +394,6 @@ function displayFromLecs(res){
 
 function refreshLecs(res){
     var lecsJson = JSON.parse(res);
-    console.log(lecsJson);
     
     $(".lecture-card").remove();
     

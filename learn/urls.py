@@ -11,9 +11,13 @@ urlpatterns = [
     
     path('<int:classroom>/<int:weeklyclass>/', views.chapters.as_view(), name='chapters'),
     
-    re_path(r'^(?P<classroom>\d+)/(?P<weeklyclass>\d+)/(?P<pk>\d+)/(?:(?P<lecture>\d+/))?$',
+    re_path(r'^(?P<classroom>\d+)/(?P<weeklyclass>\d+)/(?P<pk>\d+)/?$',
             views.chapter.as_view(),
             name='chapter'),
+    
+    re_path(r'^(?P<classroom>\d+)/(?P<weeklyclass>\d+)/print$',
+            views.print.as_view(),
+            name='print'),
     
     path('lecture/create', views.leccreate.as_view(), name='leccreate'),
     
@@ -24,5 +28,4 @@ urlpatterns = [
     path('lecture/delete/<int:pk>', views.lecdelete.as_view(), name='lecdelete'),
     
     path('lecture/update/<int:pk>', views.lecupdate.as_view(), name='lecupdate'),
-    
 ]

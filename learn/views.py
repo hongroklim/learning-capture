@@ -54,10 +54,23 @@ class chapter(DetailView):
             context['lectures'] = Lecture.objects.filter(chapter__pk=self.kwargs['pk']).order_by('num', 'pk')
         except Lecture.DoesNotExist:
             context['lectures'] = None;
-        
         return context
 
+
+class print(ListView):
+    model = Chapter
+    template_name = 'learn/print.html'
     
+    def get_queryset(self):
+        return Chapter.objects.filter(weeklyclass__pk=self.kwargs['weeklyclass']).order_by('num')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['classroom'] = get_object_or_404(ClassRoom, pk=self.kwargs['classroom'])
+        context['weeklyclass'] = get_object_or_404(WeeklyClass, pk=self.kwargs['weeklyclass'])
+        return context
+
+
 #Mixin to add AJAX support to a form.
 #Must be used with an object-based FormView (e.g. CreateView)
 class LectureAjaxResponseMixin:
