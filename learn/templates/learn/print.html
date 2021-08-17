@@ -50,7 +50,7 @@
         
         div.page-header {
             position: fixed;
-            top: -5mm;
+            top: -6mm;
             
             margin-bottom: none;
             margin: auto;
@@ -174,7 +174,17 @@ function getLecturesOfChatper(index){
 }
 
 $(function(){
-    getLecturesOfChatper(0);
+    //get lectures
+    var $cBody = $("#c_body_"+chapters[0]);
+    if($cBody.children().length == 0){
+        getLecturesOfChatper(0);
+    }
+    
+    //set title
+    var weekNum = '0' + '{{ weeklyclass.num }}',
+        weekTitle = '{{ weeklyclass.title }}';
+    document.title = weekNum.substr(weekNum.length-2) + '_' + weekTitle.replace(/\s/g, '_');
+  
 });
 </script>
 </body>
