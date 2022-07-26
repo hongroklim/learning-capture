@@ -25,7 +25,8 @@ SECRET_KEY = 'ks-h6m_2*-ge*k!%ff#mo7o_f9d50cn!ls-q#w$2()pl$+)cgu'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [".goorm.io"]
+#ALLOWED_HOSTS = [".goorm.io"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -74,21 +75,14 @@ WSGI_APPLICATION = 'ELearningPy.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#    }
-#}
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'elearning',
-        'USER': 'admin',
-        'PASSWORD': 'root',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'NAME': os.environ.get('POSTGRES_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': 'db',
+        'PORT': 5432,
     }
 }
 
@@ -116,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.environ.get('TZ')
 
 USE_I18N = True
 

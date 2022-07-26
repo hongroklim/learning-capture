@@ -1,4 +1,4 @@
-# ELearningPy
+# Learning Capture
 
 > Easily **Capture** Screens,\
 > Quickly **Write** Down Comments,\
@@ -26,7 +26,7 @@
 * `ctrl` + `enter` save cards (then add cards)
 * `ctrl` + `Q` capture
 
-## Printing all
+## Print
 
 * Cards are arranged in sections and capture time.
 * Each section has naming as delimiter.

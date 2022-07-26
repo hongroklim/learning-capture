@@ -1,0 +1,36 @@
+version: "3"
+   
+services:
+  db:
+    container_name: learning-db
+    image: postgres:13.5-alpine
+    volumes:
+      - psql-data:/var/lib/postgresql/data
+    environment:
+      TZ: $TZ
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+
+  web:
+    container_name: learning-web
+    build: .
+    volumes:
+      - .:/code
+    environment:
+      TZ: $TZ
+      POSTGRES_NAME: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      DJANGO_SUPERUSER_USERNAME: $DJANGO_SUPERUSER_USERNAME
+      DJANGO_SUPERUSER_EMAIL: $DJANGO_SUPERUSER_EMAIL
+      DJANGO_SUPERUSER_PASSWORD: $DJANGO_SUPERUSER_PASSWORD
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    entrypoint:
+      - ./docker-entrypoint.sh
+
+volumes:
+  psql-data:
