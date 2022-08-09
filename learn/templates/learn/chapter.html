@@ -57,12 +57,12 @@
         border-radius: 0;
     }
     
-    #classroom_title{
+    #classroom_title, #weeklyclass_title {
         color: #343a40;
         text-decoration: underline;
     }
     
-    #classroom_title:hover{
+    #classroom_title:hover, #weeklyclass_title:hover {
         color: #343a40;
         font-weight: bold;
         text-decoration: none;
@@ -124,14 +124,17 @@
             </div>
             <div class="row">
                 <div class="col-auto mr-auto mb-3">
-                    <h4>{{ chapter.num }}.&nbsp;{{ chapter.title }}</h4>
+                    <h4>{{ weeklyclass.num }}.{{ chapter.num }}.&nbsp;{{ chapter.title }}</h4>
                     <a id="classroom_title" href="{% url 'learn:weeklyclasses' classroom.id %}">{{ classroom.title }}</a>&nbsp;
                     <small class="text-muted">{{ classroom.year }}년 {{ classroom.semester }}학기</small><br>
                 </div>
                 <div class="col-auto">
                     <ul class="list-group">
                         <li class="list-group-item list-group-item-dark">
-                            {{ weeklyclass.title }}&nbsp;<small class="text-muted">{{ weeklyclass.num }}주차</small>
+                            <small class="text-muted">{{ weeklyclass.num }}주차</small>&nbsp;
+                            <a id="weeklyclass_title" href="{% url 'learn:chapters' classroom.id weeklyclass.id %}">
+                              {{ weeklyclass.title }}
+                            </a>
                         </li>
                         {% for i_chapter in chapters %}
                             {% if i_chapter.id == chapter.id %}
